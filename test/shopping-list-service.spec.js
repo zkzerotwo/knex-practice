@@ -1,27 +1,41 @@
-const ArticlesService = require('../src/articles-service')
+const ShoppingListsService = require('../src/shopping-list-service')
 const knex = require('knex')
 
-describe(`Articles service object`, function () {
+describe(`ShoppingLists service object`, function () {
     let db
-    let testArticles = [
+    let testShoppingLists = [
         {
             id: 1,
-            date_published: new Date('2029-01-22T16:28:32.615Z'),
-            title: 'First test post!',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus consequuntur deserunt commodi, nobis qui inventore corrupti iusto aliquid debitis unde non.Adipisci, pariatur.Molestiae, libero esse hic adipisci autem neque ?'
-        },
-        {
+            name: 'First test item!',
+            date_added: new Date('2029-01-22T16:28:32.615Z'),
+            checked: false, 
+            price: '12.00',
+            category: 'Main'
+          },
+          {
             id: 2,
-            date_published: new Date('2100-05-22T16:28:32.615Z'),
-            title: 'Second test post!',
-            content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, exercitationem cupiditate dignissimos est perspiciatis, nobis commodi alias saepe atque facilis labore sequi deleniti. Sint, adipisci facere! Velit temporibus debitis rerum.'
-        },
-        {
+            name: 'Second test item!',
+            date_added: new Date('2100-05-22T16:28:32.615Z'),
+            checked: false, 
+            price: '21.00',
+            category: 'Snack'
+          },
+          {
             id: 3,
-            date_published: new Date('1919-12-22T16:28:32.615Z'),
-            title: 'Third test post!',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus, voluptate? Necessitatibus, reiciendis? Cupiditate totam laborum esse animi ratione ipsa dignissimos laboriosam eos similique cumque. Est nostrum esse porro id quaerat.'
-        },
+            name: 'Third test item!',
+            date_added: new Date('1919-12-22T16:28:32.615Z'),
+            checked: false, 
+            price: '3.00',
+            category: 'Lunch'
+          },
+          {
+            id: 4,
+            name: 'Fourth test item!',
+            date_added: new Date('1919-12-22T16:28:32.615Z'),
+            checked: false, 
+            price: '0.99',
+            category: 'Breakfast'
+          },
     ]
     before(() => {
         db = knex({
@@ -29,88 +43,96 @@ describe(`Articles service object`, function () {
             connection: process.env.TEST_DB_URL,
         })
     })
-    before(() => db('blogful_articles').truncate())
-    afterEach(() => db('blogful_articles').truncate())
+    before(() => db('shopping_list').truncate())
+    afterEach(() => db('shopping_list').truncate())
     after(() => db.destroy())
-    describe(`getAllArticles()`, () => {
-        context(`Given 'blogful_articles' has data`, () => {
+    describe(`getAllShoppingLists()`, () => {
+        context(`Given 'shopping_list' has data`, () => {
             beforeEach(() => {
                 return db
-                    .into('blogful_articles')
-                    .insert(testArticles)
+                    .into('shopping_list')
+                    .insert(testShoppingLists)
             })
-            it(`getAllArticles() resolves all articles from 'blogful_articles' table`, () => {
-                // test that ArticlesService.getAllArticles gets data from table
-                return ArticlesService.getAllArticles(db)
+            it(`getAllShoppingLists() resolves all items from 'shopping_list' table`, () => {
+                // test that ShoppingListsService.getAllShoppingLists gets data from table
+                return ShoppingListsService.getAllShoppingLists(db)
                     .then(actual => {
-                        expect(actual).to.eql(testArticles.map(article => ({
-                            ...article,
-                            date_published: new Date(article.date_published)
+                        expect(actual).to.eql(testShoppingLists.map(item => ({
+                            ...item,
+                            date_added: new Date(item.date_added)
                         })))
                     })
             })
-            it(`getById() resolves an article by id from 'blogful_articles' table`, () => {
+            it(`getById() resolves an item by id from 'shopping_list' table`, () => {
                 const thirdId = 3
-                const thirdTestArticle = testArticles[thirdId - 1]
-                return ArticlesService.getById(db, thirdId)
+                const thirdTestShoppingList = testShoppingLists[thirdId - 1]
+                return ShoppingListsService.getById(db, thirdId)
                     .then(actual => {
                         expect(actual).to.eql({
                             id: thirdId,
-                            title: thirdTestArticle.title,
-                            content: thirdTestArticle.content,
-                            date_published: thirdTestArticle.date_published,
+                            name: thirdTestShoppingList.name,
+                            price: thirdTestShoppingList.price,
+                            checked: thirdTestShoppingList.checked,
+                            category: thirdTestShoppingList.category,
+                            date_added: thirdTestShoppingList.date_added,
                         })
                     })
             })
-            it(`deleteArticle() removes an article by id from 'blogful_articles' table`, () => {
-                const articleId = 3
-                return ArticlesService.deleteArticle(db, articleId)
-                    .then(() => ArticlesService.getAllArticles(db))
-                    .then(allArticles => {
-                        // copy the test articles array without the "deleted" article
-                        const expected = testArticles.filter(article => article.id !== articleId)
-                        expect(allArticles).to.eql(expected)
+            it(`deleteShoppingList() removes an item by id from 'shopping_list' table`, () => {
+                const itemId = 3
+                return ShoppingListsService.deleteShoppingList(db, itemId)
+                    .then(() => ShoppingListsService.getAllShoppingLists(db))
+                    .then(allShoppingLists => {
+                        // copy the test items array without the "deleted" item
+                        const expected = testShoppingLists.filter(item => item.id !== itemId)
+                        expect(allShoppingLists).to.eql(expected)
                     })
             })
-            it(`updateArticle() updates an article from the 'blogful_articles' table`, () => {
-                const idOfArticleToUpdate = 3
-                const newArticleData = {
-                    title: 'updated title',
-                    content: 'updated content',
-                    date_published: new Date(),
+            it(`updateShoppingList() updates an item from the 'shopping_list' table`, () => {
+                const idOfShoppingListToUpdate = 3
+                const newShoppingListData = {
+                    name: 'updated name',
+                    price: '99.99',
+                    date_added: new Date(),
+                    category: 'Breakfast',
+                    checked: true,
                 }
-                return ArticlesService.updateArticle(db, idOfArticleToUpdate, newArticleData)
-                    .then(() => ArticlesService.getById(db, idOfArticleToUpdate))
-                    .then(article => {
-                        expect(article).to.eql({
-                            id: idOfArticleToUpdate,
-                            ...newArticleData,
+                return ShoppingListsService.updateShoppingList(db, idOfShoppingListToUpdate, newShoppingListData)
+                    .then(() => ShoppingListsService.getById(db, idOfShoppingListToUpdate))
+                    .then(item => {
+                        expect(item).to.eql({
+                            id: idOfShoppingListToUpdate,
+                            ...newShoppingListData,
                         })
                     })
             })
 
         })
-        context(`Given 'blogful_articles' has no data`, () => {
-            it(`getAllArticles() resolves an empty array`, () => {
-                return ArticlesService.getAllArticles(db)
+        context(`Given 'shopping_list' has no data`, () => {
+            it(`getAllShoppingLists() resolves an empty array`, () => {
+                return ShoppingListsService.getAllShoppingLists(db)
                     .then(actual => {
                         expect(actual).to.eql([])
                     })
             })
 
-            it(`insertArticle() inserts a new article and resolves the new article with an 'id'`, () => {
-                const newArticle = {
-                    title: 'Test new title',
-                    content: 'Test new content',
-                    date_published: new Date('2020-01-01T00:00:00.000Z'),
+            it(`insertShoppingList() inserts a new item and resolves the new item with an 'id'`, () => {
+                const newShoppingList = {
+                    name: 'New Flytem',
+                    price: '20.09',
+                    category: 'Main',
+                    checked: false,
+                    date_added: new Date('2020-01-01T00:00:00.000Z'),
                 }
-                return ArticlesService.insertArticle(db, newArticle)
+                return ShoppingListsService.insertShoppingList(db, newShoppingList)
                     .then(actual => {
                         expect(actual).to.eql({
                             id: 1,
-                            title: newArticle.title,
-                            content: newArticle.content,
-                            date_published: newArticle.date_published,
+                            name: newShoppingList.name,
+                            price: newShoppingList.price,
+                            category: newShoppingList.category,
+                            checked: newShoppingList.checked,
+                            date_added: newShoppingList.date_added,
                         })
                     })
             })
