@@ -12,7 +12,7 @@ CREATE TYPE grocery AS ENUM (
 'Main',
 'Snack',
 'Lunch',
-'Breakfast',
+'Breakfast'
 );
 -- The shopping_list table should have the following 6 columns. None of the columns should allow null values.
 
